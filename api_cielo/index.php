@@ -142,7 +142,7 @@
 
             <div class="col-md-3 mb-3">
               <label for="zip">CEP</label>
-              <input type="text" class="form-control" id="zip" id="zip" placeholder="CEP" required>
+              <input maxLength="9" type="text" class="form-control" id="zip" id="zip" placeholder="CEP" required>
               <div class="invalid-feedback">Zip code required.</div>
             </div>
           </div>
@@ -151,24 +151,24 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="cc-flag">Bandeira</label>
-              <input type="text" class="form-control" name="cc-flag" id="cc-flag" placeholder="Visa | Master | Dinner" required>
+              <input maxLength="24" type="text" class="form-control" name="cc-flag" id="cc-flag" placeholder="Visa | Master | Dinner" required>
               <div class="invalid-feedback">Flag is required</div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="cc-number">Número do cartão</label>
-              <input type="text" class="form-control" name="cc-number" id="cc-number" placeholder="xxxx-xxxx-xxxx-xxxx" required>
+              <input type="text" class="form-control" name="cc-number" id="cc-number" maxLength="16" placeholder="xxxx-xxxx-xxxx-xxxx" required>
               <div class="invalid-feedback">Credit card number is required</div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-3 mb-3">
               <label for="cc-expiration">Expira em:</label>
-              <input type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/99" required>
+              <input maxLength="5" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/24" required>
               <div class="invalid-feedback">Expiration date required</div>
             </div>
             <div class="col-md-3 mb-3">
               <label for="cc-cvv">CVV</label>
-              <input type="text" class="form-control" name="cc-cvv" id="cc-cvv" placeholder="xxx" required>
+              <input maxLength="3" type="text" class="form-control" name="cc-cvv" id="cc-cvv" placeholder="xxx" required>
               <div class="invalid-feedback">Security code required</div>
             </div>
           </div>
