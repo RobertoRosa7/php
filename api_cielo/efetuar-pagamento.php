@@ -48,11 +48,14 @@ try {
   // com venda feita temos o TID e seu retorno
   $paymentId = $sale->getPayment()->getPaymentId();
 
-  echo $sale->getPayment()->getStatus();
-  echo "-";
-  echo $sale->getPayment()->getReturnCode();
-  print_r($sale->getPayment());
-  die();
+  // DEBUG
+  // echo $sale->getPayment()->getStatus();
+  // echo "-";
+  // echo $sale->getPayment()->getReturnCode();
+  // echo "<pre>";
+  // print_r($sale->getPayment());
+  // echo "</pre>";
+  // die();
 
   if ($sale->getPayment()->getStatus() == 2) {
     Header("Location: retorno.php?cod=0&TID=" . $sale->getPayment()->getTid());
@@ -61,4 +64,10 @@ try {
   }
 } catch (CieloRequestException $e) {
   // Em caso de erro de integração podemos tratar aqui
+
+  // DEBUG
+  // echo "<pre>";
+  // print_r($e);
+  // echo "</pre>";
+  header("Location: retorno.php?cod=2&erro=" . $e->getCieloError()->getCode());
 }

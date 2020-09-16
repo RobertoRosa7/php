@@ -147,7 +147,15 @@
             </div>
           </div>
           <hr class="mb-4">
-          <h4 class="mb-3">Cartão</h4>
+          <div class="row">
+            <input checked type="radio" id="cc-credit" name="cc-type" value="1">
+            <label for="cc-credit">Crédito</label>
+
+            <input type="radio" id="cc-debit" name="cc-type" value="2">
+            <label for="cc-debit">Débito</label>
+          </div>
+          <h4 id="cc-titulo" class="mb-3">Cartão de crédito</h4>
+          <h4 id="cd-titulo" class="mb-3">Cartão de débito</h4>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="cc-flag">Bandeira</label>
@@ -163,7 +171,7 @@
           <div class="row">
             <div class="col-md-3 mb-3">
               <label for="cc-expiration">Expira em:</label>
-              <input maxLength="5" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/24" required>
+              <input maxLength="7" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/24" required>
               <div class="invalid-feedback">Expiration date required</div>
             </div>
             <div class="col-md-3 mb-3">
@@ -208,15 +216,28 @@
             }
             form.classList.add('was-validated')
           }, false)
-
-          // form.addEventListener('focusout', event => {
-          //   if (form.checkValidity() === false) {
-          //     event.preventDefault()
-          //     event.stopPropagation()
-          //   }
-          //   form.classList.add('was-validated')
-          // })
         })
+
+        document.querySelectorAll('input[name="cc-type"]').forEach(cc => 
+          document.querySelector('#cd-titulo').style.display = 'none')
+          
+        document.querySelectorAll('input[name="cc-type"]').forEach(cc => 
+          cc.addEventListener('change', showTitulo))
+
+        function showTitulo(e) {
+          if (e.target.value === '1') {
+            document.querySelector('#cc-titulo').style.display = 'block'
+            document.querySelector('#cd-titulo').style.display = 'none'
+
+          } else if (e.target.value === '2') {
+            document.querySelector('#cd-titulo').style.display = 'block'
+            document.querySelector('#cc-titulo').style.display = 'none'
+
+          } else {
+            document.querySelector('#cd-titulo').style.display = 'none'
+            document.querySelector('#cc-titulo').style.display = 'none'
+          }
+        }
       }, false)
     })()
   </script>
