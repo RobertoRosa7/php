@@ -6,30 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Integração API Cielo - E-commerce</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <style>
+    button:disabled {
+      cursor:not-allowed;
+    }
+  </style>
 </head>
-<!-- <section class="payment">
-    <div class="container">
-      <h1><?php print("Working!"); ?></h1>
-      <div class="title">
-        <h1>Fazendo integração com API da Cielo</h1>
-      </div>
-      
-      <div class="content">
-        <div class="row">
-          <div class="col-md-6">
-            <form action="">
-              <h3>Endereço de cobrança</h3>
-              <div class="form-">
-                <input type="text" class="form-control" placeholder="Nome">
-                <input type="text" class="form-control" placeholder="Número do cartão">
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section> -->
-
 <body class="bg-light">
   <div class="container">
     <div class="py-5 text-center">
@@ -91,18 +73,18 @@
 
       <div class="col-md-6 order-md-1">
         <h4 class="mb-3">Endereço de cobrança</h4>
-        <form class="needs-validation" novalidate action="efetuar-pagamento.php" method="POST">
+        <form id="cc-form" class="needs-validation" novalidate>
           <input type="hidden" name="total" id="total" value="20">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="firstName">Nome</label>
-              <input type="text" class="form-control" name="firstName" id="firstName" placeholder="nome" value="" required>
-              <div class="invalid-feedback">Valid first name is required.</div>
+              <input minLength="4" type="text" class="form-control" name="first-name" id="first-name" placeholder="nome" value="" required>
+              <div class="invalid-feedback">Digite seu nome</div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="lastName">Sobrenome</label>
-              <input type="text" class="form-control" name="lastName" id="lastName" placeholder="sobrenome" value="" required>
-              <div class="invalid-feedback">Valid last name is required.</div>
+              <input minLength="4" type="text" class="form-control" name="last-name" id="lastName" placeholder="sobrenome" value="" required>
+              <div class="invalid-feedback">Digite seu sobrenome.</div>
             </div>
           </div>
           <div class="mb-3">
@@ -142,16 +124,16 @@
 
             <div class="col-md-3 mb-3">
               <label for="zip">CEP</label>
-              <input maxLength="9" type="text" class="form-control" id="zip" id="zip" placeholder="CEP" required>
+              <input maxLength="9" type="text" class="form-control" id="zip" name="cc-zip" placeholder="CEP" required>
               <div class="invalid-feedback">Zip code required.</div>
             </div>
           </div>
           <hr class="mb-4">
           <div class="row">
-            <input checked type="radio" id="cc-credit" name="cc-type" value="1">
+            <input onchange="showTitulo(event)" checked type="radio" id="cc-credit" name="cc-type" value="1">
             <label for="cc-credit">Crédito</label>
 
-            <input type="radio" id="cc-debit" name="cc-type" value="2">
+            <input onchange="showTitulo(event)" type="radio" id="cc-debit" name="cc-type" value="2">
             <label for="cc-debit">Débito</label>
           </div>
           <h4 id="cc-titulo" class="mb-3">Cartão de crédito</h4>
@@ -164,24 +146,24 @@
             </div>
             <div class="col-md-6 mb-3">
               <label for="cc-number">Número do cartão</label>
-              <input type="text" class="form-control" name="cc-number" id="cc-number" maxLength="16" placeholder="xxxx-xxxx-xxxx-xxxx" required>
+              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="text" class="form-control" name="cc-number" id="cc-number" maxLength="19" placeholder="xxxx-xxxx-xxxx-xxxx" required>
               <div class="invalid-feedback">Credit card number is required</div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-3 mb-3">
               <label for="cc-expiration">Expira em:</label>
-              <input maxLength="7" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/24" required>
+              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" maxLength="7" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/2024" required>
               <div class="invalid-feedback">Expiration date required</div>
             </div>
             <div class="col-md-3 mb-3">
               <label for="cc-cvv">CVV</label>
-              <input maxLength="3" type="text" class="form-control" name="cc-cvv" id="cc-cvv" placeholder="xxx" required>
+              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" minLength="3" maxLength="3" type="text" class="form-control" name="cc-cvv" id="cc-cvv" placeholder="xxx" required>
               <div class="invalid-feedback">Security code required</div>
             </div>
           </div>
           <hr class="mb-4">
-          <button class="btn btn-primary btn-lg btn-block" type="submit">Continue</button>
+          <button id="btn-continue" class="btn btn-primary btn-lg btn-block" type="submit">Continue</button>
         </form>
       </div>
     </div>
@@ -199,48 +181,95 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   <script>
+
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (function() {
       'use strict';
-
+      const payload = {}
       window.addEventListener('load', function() {
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.getElementsByClassName('needs-validation')
+        HTMLFormElement.prototype.fetchForm = function(){
+          return new FormData(this)
+        }
+        HTMLFormElement.prototype.toJSON = function(){
+          const json = {}
+          this.fetchForm().forEach((value, key) => json[key] = value)
+          return json
+        }
+        
+        $('#btn-continue').attr('disabled', true)
+        $('input[name="cc-type"]').each(cc => $('#cd-titulo').hide())
 
-        // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-          form.addEventListener('submit', function(event) {
-            if (form.checkValidity() === false) {
-              event.preventDefault()
-              event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-          }, false)
+        $('#first-name').on('keyup', e => {
+          if (e.target.required && e.target.value > e.target.minLength) {
+            payload['first-name'] = true
+            e.target.parentNode.classList.add('was-validated')
+          }
+        })
+        $('#cc-number').on('keyup', e => {
+          if (e.target.value.length == 4) {
+            e.target.value = e.target.value += '-'
+          } else if (e.target.value.length == 9) {
+            e.target.value = e.target.value += '-'
+          } else if (e.target.value.length == 14) {
+            e.target.value = e.target.value += '-'
+          }
+          payload['cc-credit'] = /(\d\d\d\d)-(\d\d\d\d)-(\d\d\d\d)-(\d\d\d\d)/.test(e.target.value)
+
+          if (payload['cc-credit'] && e.target.required) {
+            e.target.parentNode.classList.add('was-validated')
+            $('#cc-expiration').focus()
+          }
         })
 
-        document.querySelectorAll('input[name="cc-type"]').forEach(cc => 
-          document.querySelector('#cd-titulo').style.display = 'none')
-          
-        document.querySelectorAll('input[name="cc-type"]').forEach(cc => 
-          cc.addEventListener('change', showTitulo))
+        $('#cc-expiration').on('keyup', e => {
+          if (e.target.value.length == 2) e.target.value = e.target.value += '/'
+          payload['cc-expiration'] = /(\d\d)\/(\d\d\d\d)/.test(e.target.value)
+          if (payload['cc-expiration']) $('#cc-cvv').focus()
+        })
 
-        function showTitulo(e) {
-          if (e.target.value === '1') {
-            document.querySelector('#cc-titulo').style.display = 'block'
-            document.querySelector('#cd-titulo').style.display = 'none'
+        $('#cc-cvv').on('keyup', e => {
+          payload['cc-cvv'] = /\d\d\d/.test(e.target.value)
+          if (payload['cc-cvv']) $('#btn-continue').focus()
+        })
 
-          } else if (e.target.value === '2') {
-            document.querySelector('#cd-titulo').style.display = 'block'
-            document.querySelector('#cc-titulo').style.display = 'none'
-
-          } else {
-            document.querySelector('#cd-titulo').style.display = 'none'
-            document.querySelector('#cc-titulo').style.display = 'none'
+        $('#cc-form').on('submit', e => {
+          e.preventDefault()
+          for (const key in payload) {
+            if (payload[key]) payload['is-valid'] = true
           }
+          console.log(payload)
+          if (payload['is-valid']) {
+            $('#cc-form').addClass('was-validated')
+          } else {
+            sendPayload(document.querySelector('#cc-form').toJSON())
+          }
+        })
+        
+        $('#cc-form').on('change', e => {
+          !payload['is-valid'] ? $('#btn-continue').attr('disabled', false) : $('#btn-continue').attr('disabled', true)
+        })
+
+        function sendPayload(payload) {
+          console.log(payload)
         }
+
       }, false)
     })()
+
+    function showTitulo(e) {
+      if (e.target.value === '1') {
+        $('#cc-titulo').show()
+        $('#cd-titulo').hide()
+
+      } else if (e.target.value === '2') {
+        $('#cd-titulo').show()
+        $('#cc-titulo').hide()
+
+      } else {
+        $('#cd-titulo').hide()
+        $('#cc-titulo').hide()
+      }
+    }
   </script>
 </body>
-
 </html>
