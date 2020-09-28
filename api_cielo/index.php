@@ -8,10 +8,11 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <style>
     button:disabled {
-      cursor:not-allowed;
+      cursor: not-allowed
     }
   </style>
 </head>
+
 <body class="bg-light">
   <div class="container">
     <div class="py-5 text-center">
@@ -83,7 +84,7 @@
             </div>
             <div class="col-md-6 mb-3">
               <label for="lastName">Sobrenome</label>
-              <input minLength="4" type="text" class="form-control" name="last-name" id="lastName" placeholder="sobrenome" value="" required>
+              <input minLength="4" type="text" class="form-control" name="last-name" id="last-name" placeholder="sobrenome" value="" required>
               <div class="invalid-feedback">Digite seu sobrenome.</div>
             </div>
           </div>
@@ -124,7 +125,7 @@
 
             <div class="col-md-3 mb-3">
               <label for="zip">CEP</label>
-              <input maxLength="9" type="text" class="form-control" id="zip" name="cc-zip" placeholder="CEP" required>
+              <input maxLength="9" minlength="9" type="text" class="form-control" id="zip" name="cc-zip" placeholder="CEP" required>
               <div class="invalid-feedback">Zip code required.</div>
             </div>
           </div>
@@ -146,7 +147,7 @@
             </div>
             <div class="col-md-6 mb-3">
               <label for="cc-number">Número do cartão</label>
-              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="text" class="form-control" name="cc-number" id="cc-number" maxLength="19" placeholder="xxxx-xxxx-xxxx-xxxx" required>
+              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="text" class="form-control" name="cc-number" id="cc-number" maxLength="19" minLength="19" placeholder="xxxx-xxxx-xxxx-xxxx" required>
               <div class="invalid-feedback">Credit card number is required</div>
             </div>
           </div>
@@ -181,55 +182,87 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   <script>
-
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (function() {
       'use strict';
       const payload = {}
       window.addEventListener('load', function() {
-        HTMLFormElement.prototype.fetchForm = function(){
+        HTMLFormElement.prototype.fetchForm = function() {
           return new FormData(this)
         }
-        HTMLFormElement.prototype.toJSON = function(){
+        
+        HTMLFormElement.prototype.toJSON = function() {
           const json = {}
           this.fetchForm().forEach((value, key) => json[key] = value)
           return json
         }
-        
+
+        HTMLElement.prototype.mask = function(mask) {
+          switch (mask) {
+            case 'telefone':
+              this.value = this.value.replace(/\D/g, '') // remover tudo que não é digito
+              this.value = this.value.replace(/^(\d{2})(\d)/g, "($1) $2") // colocar parenteses
+              this.value = this.value.replace(/(\d)(\d{4}$)/, "$1-$2") // hífen entre 4 e 5 digitios
+              return this
+            default:
+              return this
+          }
+        }
+
         $('#btn-continue').attr('disabled', true)
         $('input[name="cc-type"]').each(cc => $('#cd-titulo').hide())
 
         $('#first-name').on('keyup', e => {
-          if (e.target.required && e.target.value > e.target.minLength) {
-            payload['first-name'] = true
-            e.target.parentNode.classList.add('was-validated')
-          }
+          e.target.parentNode.classList.add('was-validated')
+          payload['first-name'] = e.target.required && e.target.value.length > e.target.minLength
         })
-        $('#cc-number').on('keyup', e => {
-          if (e.target.value.length == 4) {
-            e.target.value = e.target.value += '-'
-          } else if (e.target.value.length == 9) {
-            e.target.value = e.target.value += '-'
-          } else if (e.target.value.length == 14) {
-            e.target.value = e.target.value += '-'
-          }
-          payload['cc-credit'] = /(\d\d\d\d)-(\d\d\d\d)-(\d\d\d\d)-(\d\d\d\d)/.test(e.target.value)
 
-          if (payload['cc-credit'] && e.target.required) {
-            e.target.parentNode.classList.add('was-validated')
-            $('#cc-expiration').focus()
-          }
+        $('#last-name').on('keyup', e => {
+          e.target.parentNode.classList.add('was-validated')
+          payload['last-name'] = e.target.required
+        })
+
+        $('#address').on('keyup', e => {
+          e.target.parentNode.classList.add('was-validated')
+          payload['address'] = e.target.required
+        })
+
+        $('#state').on('keyup', e => {
+          e.target.parentNode.classList.add('was-validated')
+          payload['state'] = e.target.required
+        })
+
+        $('#city').on('keyup', e => {
+          e.target.parentNode.classList.add('was-validated')
+          payload['city'] = e.target.required
+        })
+
+        $('#zip').on('keyup', e => {
+          e.target.parentNode.classList.add('was-validated')
+          e.target.value = e.target.value.replace(/\D/g, "")
+          e.target.value = e.target.value.replace(/^(\d{5})(\d)/g, "$1-$2")
+          payload['zip'] = e.target.required && e.target.value.length == e.target.minLength
+        })
+
+        $('#cc-number').on('keyup', e => {
+          e.target.parentNode.classList.add('was-validated')
+          e.target.value = e.target.value.replace(/\D/g, "")
+          e.target.value = e.target.value.replace(/^(\d{4})(\d)/g, "$1 $2")
+          e.target.value = e.target.value.replace(/^(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3")
+          e.target.value = e.target.value.replace(/^(\d{4})\s(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3 $4")
+          payload['cc-credit'] = /(\d{4})\s(\d{4})\s(\d{4})\s(\d{4})/.test(e.target.value)
         })
 
         $('#cc-expiration').on('keyup', e => {
-          if (e.target.value.length == 2) e.target.value = e.target.value += '/'
-          payload['cc-expiration'] = /(\d\d)\/(\d\d\d\d)/.test(e.target.value)
-          if (payload['cc-expiration']) $('#cc-cvv').focus()
+          e.target.parentNode.classList.add('was-validated')
+          e.target.value = e.target.value.replace(/\D/g, "")
+          e.target.value = e.target.value.replace(/(\d{2})(\d)/, "$1/$2")
+          payload['cc-expiration'] = /(\d{2})\s(\d{4})/.test(e.target.value)
         })
 
         $('#cc-cvv').on('keyup', e => {
-          payload['cc-cvv'] = /\d\d\d/.test(e.target.value)
-          if (payload['cc-cvv']) $('#btn-continue').focus()
+          e.target.value = e.target.value.replace(/\D/g, "")
+          payload['cc-cvv'] = /\d{3}/.test(e.target.value) && e.target.required
         })
 
         $('#cc-form').on('submit', e => {
@@ -237,14 +270,13 @@
           for (const key in payload) {
             if (payload[key]) payload['is-valid'] = true
           }
-          console.log(payload)
           if (payload['is-valid']) {
             $('#cc-form').addClass('was-validated')
           } else {
             sendPayload(document.querySelector('#cc-form').toJSON())
           }
         })
-        
+
         $('#cc-form').on('change', e => {
           !payload['is-valid'] ? $('#btn-continue').attr('disabled', false) : $('#btn-continue').attr('disabled', true)
         })
@@ -272,4 +304,5 @@
     }
   </script>
 </body>
+
 </html>
