@@ -125,7 +125,7 @@
 
             <div class="col-md-3 mb-3">
               <label for="zip">CEP</label>
-              <input maxLength="9" minlength="9" type="text" class="form-control" id="zip" name="cc-zip" placeholder="CEP" required>
+              <input mask="zip" maxLength="9" minlength="9" type="text" class="form-control" id="zip" name="cc-zip" placeholder="CEP" required>
               <div class="invalid-feedback">Zip code required.</div>
             </div>
           </div>
@@ -147,14 +147,14 @@
             </div>
             <div class="col-md-6 mb-3">
               <label for="cc-number">Número do cartão</label>
-              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="text" class="form-control" name="cc-number" id="cc-number" maxLength="19" minLength="19" placeholder="xxxx-xxxx-xxxx-xxxx" required>
+              <input mask="credit-card" onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="text" class="form-control" name="cc-number" id="cc-number" maxLength="19" minLength="19" placeholder="xxxx-xxxx-xxxx-xxxx" required>
               <div class="invalid-feedback">Credit card number is required</div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-3 mb-3">
               <label for="cc-expiration">Expira em:</label>
-              <input onkeypress="return event.charCode >= 48 && event.charCode <= 57" maxLength="7" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/2024" required>
+              <input mask="cc-expiration" onkeypress="return event.charCode >= 48 && event.charCode <= 57" maxLength="7" type="text" class="form-control" name="cc-expiration" id="cc-expiration" placeholder="01/2024" required>
               <div class="invalid-feedback">Expiration date required</div>
             </div>
             <div class="col-md-3 mb-3">
@@ -204,59 +204,65 @@
               this.value = this.value.replace(/^(\d{2})(\d)/g, "($1) $2") // colocar parenteses
               this.value = this.value.replace(/(\d)(\d{4}$)/, "$1-$2") // hífen entre 4 e 5 digitios
               return this
+            case 'credit-card':
+              this.value = this.value.replace(/\D/g, "")
+              this.value = this.value.replace(/^(\d{4})(\d)/g, "$1 $2")
+              this.value = this.value.replace(/^(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3")
+              this.value = this.value.replace(/^(\d{4})\s(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3 $4")
+              return this
+            case 'zip':
+              this.value = this.value.replace(/\D/g, "")
+              this.value = this.value.replace(/^(\d{5})(\d)/g, "$1-$2")
+              return this
+            case 'cc-expiration':
+              this.value = this.value.replace(/\D/g, "")
+              this.value = this.value.replace(/(\d{2})(\d)/, "$1/$2")
+              return this
             default:
               return this
           }
         }
 
+        $('input[mask]').each((index, input) => {
+          $(input).on('keyup', e => e.target.mask(input.getAttribute('mask')))
+        })
+
+        $('input[required]').each((index, input) => {
+          payload[input.getAttribute('name')] = ''
+        })
+
         $('#btn-continue').attr('disabled', true)
         $('input[name="cc-type"]').each(cc => $('#cd-titulo').hide())
 
         $('#first-name').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
           payload['first-name'] = e.target.required && e.target.value.length > e.target.minLength
         })
 
         $('#last-name').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
           payload['last-name'] = e.target.required
         })
 
         $('#address').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
           payload['address'] = e.target.required
         })
 
         $('#state').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
           payload['state'] = e.target.required
         })
 
         $('#city').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
           payload['city'] = e.target.required
         })
 
         $('#zip').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
-          e.target.value = e.target.value.replace(/\D/g, "")
-          e.target.value = e.target.value.replace(/^(\d{5})(\d)/g, "$1-$2")
           payload['zip'] = e.target.required && e.target.value.length == e.target.minLength
         })
 
         $('#cc-number').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
-          e.target.value = e.target.value.replace(/\D/g, "")
-          e.target.value = e.target.value.replace(/^(\d{4})(\d)/g, "$1 $2")
-          e.target.value = e.target.value.replace(/^(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3")
-          e.target.value = e.target.value.replace(/^(\d{4})\s(\d{4})\s(\d{4})(\d)/g, "$1 $2 $3 $4")
           payload['cc-credit'] = /(\d{4})\s(\d{4})\s(\d{4})\s(\d{4})/.test(e.target.value)
         })
 
         $('#cc-expiration').on('keyup', e => {
-          e.target.parentNode.classList.add('was-validated')
-          e.target.value = e.target.value.replace(/\D/g, "")
-          e.target.value = e.target.value.replace(/(\d{2})(\d)/, "$1/$2")
           payload['cc-expiration'] = /(\d{2})\s(\d{4})/.test(e.target.value)
         })
 
@@ -267,6 +273,7 @@
 
         $('#cc-form').on('submit', e => {
           e.preventDefault()
+          console.log(payload)
           for (const key in payload) {
             if (payload[key]) payload['is-valid'] = true
           }
@@ -278,7 +285,9 @@
         })
 
         $('#cc-form').on('change', e => {
-          !payload['is-valid'] ? $('#btn-continue').attr('disabled', false) : $('#btn-continue').attr('disabled', true)
+          console.log(payload)
+          // if (payload)
+          // !payload['is-valid'] ? $('#btn-continue').attr('disabled', false) : $('#btn-continue').attr('disabled', true)
         })
 
         function sendPayload(payload) {
